@@ -43,10 +43,14 @@ So you have to pack a box with the pvm, metadata.json and Vagrantfile manually.
 	pack a box
 	$ cp ../metadata.json .
 
-	If you need a default initialization, you can put Vagrantfile.
+	You need an ISO file here to boot a box.
+
+	And also you need Vagrantfile here to mount the ISO file to boot.
 	$ vi Vagrantfile
 
 	If you need more files, you can copy them here.
 
 	$ tar zcvf ../<box-name>.box *
 	```
+
+	Cf.) [A sample project for boot2docker](https://github.com/YungSang/packer-parallels/tree/boot2docker/boot2docker)
