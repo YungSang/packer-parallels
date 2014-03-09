@@ -28,9 +28,6 @@ XC_OS=${XC_OS:-linux darwin windows freebsd openbsd}
 # Make sure that if we're killed, we kill all our subprocseses
 trap "kill 0" SIGINT SIGTERM EXIT
 
-echo -e "${OK_COLOR}==> Installing dependencies to speed up builds...${NO_COLOR}"
-go get ./...
-
 echo -e "${OK_COLOR}==> Beginning compile...${NO_COLOR}"
 rm -rf pkg/
 gox \
