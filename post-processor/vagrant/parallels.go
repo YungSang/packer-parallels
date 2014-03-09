@@ -2,8 +2,10 @@ package vagrant
 
 import (
 	"fmt"
-	"github.com/mitchellh/packer/packer"
 	"path/filepath"
+	"regexp"
+
+	"github.com/mitchellh/packer/packer"
 )
 
 type ParallelsProvider struct{}
@@ -18,9 +20,29 @@ func (p *ParallelsProvider) Process(ui packer.Ui, artifact packer.Artifact, dir 
 
 	// Copy all of the original contents into the temporary directory
 	for _, path := range artifact.Files() {
-		ui.Message(fmt.Sprintf("Copying: %s", path))
+		if extension := filepath.Ext(path); extension == ".log" {
+			continue
+		}
+		if extension := filepath.Ext(path); extension == ".backup" {
+			continue
+		}
+		if extension := filepath.Ext(path); extension == ".Backup" {
+			continue
+		}
 
-		dstPath := filepath.Join(dir, filepath.Base(path))
+		var pvmPath string
+
+		tmpPath := filepath.ToSlash(path)
+		pathRe := regexp.MustCompile(`^(.+?)([^/]+\.pvm/.+?)$`)
+		matches := pathRe.FindStringSubmatch(tmpPath)
+		if matches != nil {
+			pvmPath = filepath.FromSlash(matches[2])
+		} else {
+			continue // Just copy a pvm
+		}
+		dstPath := filepath.Join(dir, pvmPath)
+
+		ui.Message(fmt.Sprintf("Copying: %s", path))
 		if err = CopyContents(dstPath, path); err != nil {
 			return
 		}
