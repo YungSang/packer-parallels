@@ -6,7 +6,7 @@ This is a [Packer](http://www.packer.io/) Builder plugin for [Parallels Desktop 
 
 	$ make
 
-It will build and install `packer-builder-parallels-iso`.
+It will build and install `packer-builder-parallels-iso` and `packer-post-processor-vagrant` to make a box for Vagrant.
 
 ## How to Use (Pack a box)
 
@@ -19,38 +19,10 @@ It will build and install `packer-builder-parallels-iso`.
 		.
 		.
 		.
-		You can use "provisioners" but "post-processors".
 	```
 
-- Use Packer to build a pvm
+- Use Packer to build a pvm or a box
 
 	`$ packer build template.json`
-
-	It will make `./output-parallels-iso/packer-parallels-iso.pvm`
-
-- Pack a box with the pvm.  
-	Packer-Parallels Builder plugin can create a pvm file only but a box directly, because we can not use Packer's post-processor with custom builders. The post-processor seems hard coded, not pluggable.
-So you have to pack a box with the pvm, metadata.json and Vagrantfile manually.
-
-	```
-	clean up pvm
-	$ cd ./output-parallels-iso
-	$ rm -rf ./packer-parallels-iso.pvm/Snapshots
-	$ rm -f  ./packer-parallels-iso.pvm/*.log
-	$ rm -f  ./packer-parallels-iso.pvm/*.backup
-	$ rm -f  ./packer-parallels-iso.pvm/harddisk.hdd/*.Backup
-
-	pack a box
-	$ cp ../metadata.json .
-
-	You need an ISO file here to boot a box.
-
-	And also you need Vagrantfile here to mount the ISO file to boot.
-	$ vi Vagrantfile
-
-	If you need more files, you can copy them here.
-
-	$ tar zcvf ../<box-name>.box *
-	```
 
 	Cf.) [A sample project for boot2docker](https://github.com/YungSang/packer-parallels/tree/boot2docker/boot2docker)
