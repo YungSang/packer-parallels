@@ -25,4 +25,4 @@ It will build and install `packer-builder-parallels-iso` and `packer-post-proces
 
 	`$ packer build template.json`
 
-	Cf.) [A sample project for boot2docker](https://github.com/YungSang/packer-parallels/tree/boot2docker/boot2docker)
+	Cf.) [A sample project for boot2docker](https://github.com/YungSang/packer-parallels/tree/master/boxes/boot2docker)
