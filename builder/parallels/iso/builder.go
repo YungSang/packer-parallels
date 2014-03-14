@@ -27,6 +27,7 @@ type config struct {
 	prlcommon.RunConfig      `mapstructure:",squash"`
 	prlcommon.ShutdownConfig `mapstructure:",squash"`
 	prlcommon.SSHConfig      `mapstructure:",squash"`
+	prlcommon.PrlCtlConfig   `mapstructure:",squash"`
 
 	DiskSize            uint     `mapstructure:"disk_size"`
 	GuestOSType         string   `mapstructure:"guest_os_type"`
@@ -62,6 +63,8 @@ func (b *Builder) Prepare(raws ...interface{}) ([]string, error) {
 	errs = packer.MultiErrorAppend(errs, b.config.RunConfig.Prepare(b.config.tpl)...)
 	errs = packer.MultiErrorAppend(errs, b.config.ShutdownConfig.Prepare(b.config.tpl)...)
 	errs = packer.MultiErrorAppend(errs, b.config.SSHConfig.Prepare(b.config.tpl)...)
+	errs = packer.MultiErrorAppend(errs, b.config.PrlCtlConfig.Prepare(b.config.tpl)...)
+
 	warnings := make([]string, 0)
 
 	if b.config.DiskSize == 0 {
@@ -202,6 +205,10 @@ func (b *Builder) Run(ui packer.Ui, hook packer.Hook, cache packer.Cache) (packe
 		new(stepCreateVM),
 		new(stepCreateDisk),
 		new(stepAttachISO),
+		&prlcommon.StepPrlCtl{
+			Commands: b.config.PrlCtl,
+			Tpl:      b.config.tpl,
+		},
 		&prlcommon.StepRun{
 			BootWait: b.config.BootWait,
 		},
