@@ -9,7 +9,10 @@
         "ssh_password": "tcuser",
         "shutdown_command": "sudo poweroff",
         "guest_os_type": "linux",
-        "guest_os_distribution": "linux-2.6"
+        "guest_os_distribution": "linux-2.6",
+        "prlctl": [
+            ["set", "{{.Name}}", "--memsize", "512"]
+        ]
     }],
 
     "provisioners": [{
