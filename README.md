@@ -2,6 +2,8 @@
 
 This is a [Packer](http://www.packer.io/) Builder plugin for [Parallels Desktop for Mac](http://www.parallels.com/products/desktop/).
 
+**Notes) This works with LiveCD/LiveDVD ISO only. You can find better implementation [here](https://github.com/rickard-von-essen/packer-parallels).**
+
 ## How to Build the Plugin
 
 	$ make
