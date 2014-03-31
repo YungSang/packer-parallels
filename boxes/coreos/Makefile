@@ -16,10 +16,6 @@ oem/coreos-install:
 	sed -e "s/amd64-generic/amd64-usr/g" -i "" oem/coreos-install
 	sed -e "s/partprobe/partprobe \|\| true/g" -i "" oem/coreos-install
 
-oem/cloud-config.yml:
-	mkdir -p oem
-	curl -L https://raw.github.com/coreos/coreos-overlay/master/coreos-base/oem-vagrant/files/cloud-config.yml -o oem/cloud-config.yml
-
 tmp/override-plugin.rb:
 	mkdir -p tmp
 	cd tmp; \
@@ -28,7 +24,7 @@ tmp/override-plugin.rb:
 clean:
 	rm -f coreos.iso
 	rm -f coreos.box
-	rm -rf oem/
+	rm -f oem/coreos-install
 	rm -rf tmp/
 	rm -rf output-*/
 
