@@ -1,0 +1,44 @@
+{
+  "builders": [{
+    "type"                  : "parallels-iso",
+    "iso_url"               : "coreos.iso",
+    "iso_checksum"          : "b9a89e7b1aa1df77ea8ee09224159a8a",
+    "iso_checksum_type"     : "md5",
+    "boot_wait"             : "10s",
+    "ssh_username"          : "core",
+    "ssh_key_path"          : "tmp/insecure_private_key",
+    "shutdown_command"      : "sudo -S shutdown -P now",
+    "guest_os_type"         : "linux",
+    "guest_os_distribution" : "linux-2.6",
+    "prlctl": [
+        ["set", "{{.Name}}", "--memsize", "512"]
+    ]
+  }],
+
+  "provisioners": [{
+    "type": "file",
+    "source": "oem/",
+    "destination": "/tmp"
+  }, {
+    "type": "shell",
+    "inline": [
+      "sudo chmod +x /tmp/coreos-install",
+      "sudo /tmp/coreos-install -V alpha -d /dev/sda",
+
+      "sudo mount /dev/sda9 /mnt",
+      "cp /home/core/.ssh/authorized_keys /mnt/root/home/core/.ssh/",
+      "sudo umount /mnt",
+
+      "sudo mount /dev/sda6 /mnt",
+      "sudo cp /tmp/cloud-config.yml /mnt/",
+      "sudo umount /mnt"
+    ]
+  }],
+
+  "post-processors": [{
+    "type"                 : "vagrant",
+    "include"              : ["tmp/override-plugin.rb"],
+    "vagrantfile_template" : "vagrantfile.tpl",
+    "output"               : "coreos.box"
+  }]
+}
