@@ -15,6 +15,15 @@ import (
 
 const BuilderId = "yungsang.parallels"
 
+// These are the different valid mode values for "parallels_tools_mode" which
+// determine how guest additions are delivered to the guest.
+const (
+	ParallelsToolsModeDisable string = "disable"
+	ParallelsToolsModeInstall        = "install"
+)
+
+const ParallelsToolsDir string = "/Applications/Parallels Desktop/Contents/Resources/Tools/"
+
 type Builder struct {
 	config config
 	runner multistep.Runner
@@ -30,6 +39,7 @@ type config struct {
 	prlcommon.PrlCtlConfig   `mapstructure:",squash"`
 
 	DiskSize            uint     `mapstructure:"disk_size"`
+	ParallelsToolsMode  string   `mapstructure:"parallels_tools_mode"`
 	GuestOSType         string   `mapstructure:"guest_os_type"`
 	GuestOSDistribution string   `mapstructure:"guest_os_distribution"`
 	HardDriveInterface  string   `mapstructure:"hard_drive_interface"`
@@ -71,6 +81,10 @@ func (b *Builder) Prepare(raws ...interface{}) ([]string, error) {
 		b.config.DiskSize = 40000
 	}
 
+	if b.config.ParallelsToolsMode == "" {
+		b.config.ParallelsToolsMode = ParallelsToolsModeInstall
+	}
+
 	if b.config.GuestOSType == "" && b.config.GuestOSDistribution == "" {
 		b.config.GuestOSType = "other"
 	}
@@ -85,6 +99,7 @@ func (b *Builder) Prepare(raws ...interface{}) ([]string, error) {
 
 	// Errors
 	templates := map[string]*string{
+		"parallels_tools_mode":  &b.config.ParallelsToolsMode,
 		"guest_os_type":         &b.config.GuestOSType,
 		"guest_os_distribution": &b.config.GuestOSDistribution,
 		"hard_drive_interface":  &b.config.HardDriveInterface,
@@ -163,6 +178,24 @@ func (b *Builder) Prepare(raws ...interface{}) ([]string, error) {
 		}
 	}
 
+	validMode := false
+	validModes := []string{
+		ParallelsToolsModeDisable,
+		ParallelsToolsModeInstall,
+	}
+
+	for _, mode := range validModes {
+		if b.config.ParallelsToolsMode == mode {
+			validMode = true
+			break
+		}
+	}
+
+	if !validMode {
+		errs = packer.MultiErrorAppend(errs,
+			fmt.Errorf("parallels_tools_mode is invalid. Must be one of: %v", validModes))
+	}
+
 	// Warnings
 	if b.config.ISOChecksumType == "none" {
 		warnings = append(warnings,
@@ -212,6 +245,7 @@ func (b *Builder) Run(ui packer.Ui, hook packer.Hook, cache packer.Cache) (packe
 		&prlcommon.StepRun{
 			BootWait: b.config.BootWait,
 		},
+		new(stepInstallParallelsTools),
 		&common.StepConnectSSH{
 			SSHAddress:     driver.SSHAddressFunc(&b.config.SSHConfig),
 			SSHConfig:      prlcommon.SSHConfigFunc(&b.config.SSHConfig),
